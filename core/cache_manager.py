@@ -18,7 +18,7 @@ class Cache():
         return self.cache.clear()
 
     def save(self, key, value):
-        if len(self.cache) < self.length:
+        if len(self.cache) < self.length:#判断是否还有可存储空间
             self.cache[key] = value
 
 class CacheManager:
