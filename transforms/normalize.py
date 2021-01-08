@@ -21,7 +21,7 @@ class Normalize():
                 raise TypeError('pic should be ndarray. Got {}'.format(type(pic)))
 
             # handle numpy array
-            if pic.ndim == 2:
+            if pic.ndim == 2:#shape属性长度，灰度图，处理为三维[h,w,c],同opencv
                 pic = pic[:, :, None]
 
             # normalize
@@ -29,7 +29,7 @@ class Normalize():
 
             input[i, ...] = pic
 
-        input = input.transpose((0, 3, 1, 2))
+        input = input.transpose((0, 3, 1, 2))#[b,c,h,w]
         input_dict['rgb'] = input
 
         return input_dict

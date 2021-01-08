@@ -3,6 +3,7 @@
 import numpy as np
 from core.utils import blacklevel_saturation_correct
 
+# 减去黑电平，避免过饱和
 # black level correction: subtract the constant black level from input images,
 # this is camera dependent. We also want to avoid having saturated pixels,
 # because they don't behave linearly.
