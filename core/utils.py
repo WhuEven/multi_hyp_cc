@@ -135,6 +135,7 @@ def apply_gamma_correction(im):
 def summary_angular_errors(errors):
     errors = sorted(errors)
 
+    #取误差的特定百分比误差
     def g(f):
         return np.percentile(errors, f * 100)
 
@@ -145,7 +146,7 @@ def summary_angular_errors(errors):
     results['mean'] = mean
     results['med'] = median
     results['tri'] = trimean
-    results['25'] = np.mean(errors[:int(0.25 * len(errors))])
+    results['25'] = np.mean(errors[:int(0.25 * len(errors))])#取前25%的均值
     results['75'] = np.mean(errors[int(0.75 * len(errors)):])
     results['95'] = g(0.95)
 

@@ -20,35 +20,36 @@ from core.cache_manager import CacheManager
 parser = argparse.ArgumentParser(description='Color Constancy: Cross validation')
 
 parser.add_argument('configurationfile',
-                    help='path to configuration file')
-parser.add_argument('dataset', help='dataset class name')
-parser.add_argument('subdataset', help='subdataset name')
-parser.add_argument('trainfiles', help='text file contraining the files to train')
-parser.add_argument('--valfile', help='text file contraining the files to validate', type=str)
-parser.add_argument('--testfile', help='text file contraining the files to test', type=str)
+                    help='path to configuration file')#配置文件位置
+parser.add_argument('dataset', help='dataset class name')#数据集名称
+parser.add_argument('subdataset', help='subdataset name')#子数据集名称
+parser.add_argument('trainfiles', help='text file contraining the files to train')#训练数据名称列表，文件的存放位置
+parser.add_argument('--valfile', help='text file contraining the files to validate', type=str)#验证数据
+parser.add_argument('--testfile', help='text file contraining the files to test', type=str)#测试数据
 
-parser.add_argument('-gpu', type=int, help='GPU id to use.')
+parser.add_argument('-gpu', type=int, help='GPU id to use.')#GPU number
 parser.add_argument('-j', '--workers', default=0, type=int,
-                    help='number of data loading workers (default: 0)')
+                    help='number of data loading workers (default: 0)')#数据加载worker数
 parser.add_argument('--resume', action='store_true',
-                    help='resume from previous execution')
-parser.add_argument('--pretrainedmodel', help='path to model pretrained model file')
+                    help='resume from previous execution')#恢复上次执行状态，继续work
+parser.add_argument('--pretrainedmodel', help='path to model pretrained model file')#预训练模型
 parser.add_argument('-e', '--evaluate', action='store_true',
-                    help='evaluate model on validation set')
+                    help='evaluate model on validation set')#开启evaluate模式，进行验证或测试
 parser.add_argument('--save_fullres', action='store_true',
-                    help='save full resolution prediction images')
+                    help='save full resolution prediction images')#是否存储全分辨率预测图像
 parser.add_argument('--seed', default=None, type=int,
-                    help='seed for initializing training. ')
+                    help='seed for initializing training. ')#初始化需要的种子，random记得固定该值
 parser.add_argument('--outputfolder', default='./output/', type=str,
-                    help='path for the ouput folder. ')
+                    help='path for the ouput folder. ')#输出文件夹
 parser.add_argument('--datapath', default='data/paths.json', type=str,
-                    help='path to json file that specifies the directories of the datasets. ')
+                    help='path to json file that specifies the directories of the datasets. ')#数据集存储位置列表
 
+#输出error
 def generate_results(res, prefix=None):
     errors = [r.error for r in res]
-    results = summary_angular_errors(errors)
+    results = summary_angular_errors(errors)#返回一个顺序字典
     if prefix is not None:
-        print(prefix, end=' ')
+        print(prefix, end=' ')#输出前缀
     for k in results.keys():
         print(k +':', "{:.4f}".format(results[k]), end=' ')
     print()
@@ -58,8 +59,8 @@ def main():
 
     if args.seed is not None:
         random.seed(args.seed)
-        torch.manual_seed(args.seed)
-        cudnn.deterministic = True
+        torch.manual_seed(args.seed)#设置torch生成随机数的种子
+        cudnn.deterministic = True#设置在当前GPU上生成随机数的种子
         warnings.warn('You have chosen to seed training. '
                       'This will turn on the CUDNN deterministic setting, '
                       'which can slow down your training considerably! '
