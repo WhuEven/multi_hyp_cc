@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#Table7，K-means超参数的影响
+
 # Declare an array of string with type
 declare -a KS=("5" "25" "50" "100" "120" "150" "200" )
 

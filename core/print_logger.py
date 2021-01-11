@@ -11,7 +11,7 @@ class PrintLogger():
         self._log.write(message)
 
     def flush(self):
-        self._log.flush()
+        self._log.flush()#刷新缓冲区
         self._terminal.flush()
 
     def __del__(self):

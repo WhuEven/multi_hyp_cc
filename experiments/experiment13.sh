@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#在NUS和Gehler-Shi上训练，在Cube上测试，不同K-means的结果
+
 # Declare an array of string with type
 declare -a KS=("5" "25" "50" "100" "120" "150" "200" )
 

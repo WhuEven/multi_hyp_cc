@@ -1,5 +1,6 @@
 #!/bin/bash
 
+#在Gehler-Shi数据集上的结果，用NUS和Cube+进行了预训练
 TRAINED_MODEL_PATH="./output_exp/experiment2/"
 GPU_ID="0"
 

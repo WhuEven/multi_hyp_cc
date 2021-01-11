@@ -21,6 +21,7 @@ class Cache():
         if len(self.cache) < self.length:#判断是否还有可存储空间
             self.cache[key] = value
 
+#考虑了预处理（cache transforms）和数据集（cache dataset）
 class CacheManager:
     def __init__(self, conf, no_cache = False):
         # Ideally, we want to cache all information of a dataset AFTER applying

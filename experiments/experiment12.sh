@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#在NUS和Gehler-Shi上训练，在Cube上测试，本文的结果
+
 TRAINED_MODEL_PATH="./output_exp/experiment12/"
 GPU_ID="0"
 

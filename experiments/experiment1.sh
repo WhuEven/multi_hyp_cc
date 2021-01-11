@@ -1,5 +1,6 @@
 #!/bin/bash
 
+#在Gehler-Shi数据集上的结果
 TRAINED_MODEL_PATH="./output_exp/experiment1/"
 GPU_ID="0"
 

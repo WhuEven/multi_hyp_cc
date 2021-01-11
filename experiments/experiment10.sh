@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#Cube challenge上的结果，用Gehler-Shi和NUS预训练
+
 TRAINED_MODEL_PATH="./output_exp/experiment10/"
 GPU_ID="0"
 

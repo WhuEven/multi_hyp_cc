@@ -90,11 +90,11 @@ def main():
 
     # we overwrite the stdout and stderr (standard output and error) to
     # files in the output directory
-    sys.stdout = PrintLogger(os.path.join(output_dir, 'stdout.txt'), sys.stdout)
-    sys.stderr = PrintLogger(os.path.join(output_dir, 'stderr.txt'), sys.stderr)
+    sys.stdout = PrintLogger(os.path.join(output_dir, 'stdout.txt'), sys.stdout)#print是对sys.stdout.write的高级封装
+    sys.stderr = PrintLogger(os.path.join(output_dir, 'stderr.txt'), sys.stderr)#stderr重定向标准错误信息
 
     fold = 0 # no folds, but we always use fold #0 for these experiments
-    cache = CacheManager(conf)
+    cache = CacheManager(conf)#申请缓存空间
     worker = Worker(fold, conf, data_conf, cache, args)
     res, _ = worker.run()
 

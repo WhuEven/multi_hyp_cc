@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#在NUS数据集上的结果，用Gehler-Shi和Cube+预训练
+
+
 # Declare an array of string with type
 declare -a CAMERAS=("canon_eos_1D_mark3" "canon_eos_600D" "fuji" "nikonD5200" "panasonic" "olympus" "sony" "samsung" )
 

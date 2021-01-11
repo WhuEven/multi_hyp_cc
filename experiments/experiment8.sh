@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#Table3，多设备训练，本文，NUS数据集
+
 # Declare an array of string with type
 declare -a CAMERAS=("canon_eos_1D_mark3" "canon_eos_600D" "fuji" "nikonD5200" "panasonic" "olympus" "sony" "samsung" )
 

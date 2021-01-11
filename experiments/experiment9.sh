@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#Cube challenge上的结果
+
 TRAINED_MODEL_PATH="./output_exp/experiment9/"
 GPU_ID="0"
 
