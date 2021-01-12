@@ -9,7 +9,10 @@ declare -a CAMERAS=("Canon1DsMkIII" "Canon600D" "FujifilmXM1" "NikonD5200" "Pana
 # Iterate the string array using for loop
 for camera in ${CAMERAS[@]}; do
    mkdir $camera
-   cat ${camera}_PNG.zip.00* > ${camera}_PNG.zip
+
+   #合并压缩碎片
+   #cat ${camera}_PNG.zip.00* > ${camera}_PNG.zip
+   
    unzip ${camera}_PNG.zip
    #rm  ${camera}_PNG.zip.00*
    rm ${camera}_PNG.zip
