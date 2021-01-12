@@ -1,0 +1,6 @@
+.history/*
+.vscode/*
+cc_data/*
+core/__pycache__/*
+datasets/__pycache__/*
+transforms/__pycache__/*
