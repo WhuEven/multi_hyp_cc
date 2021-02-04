@@ -16,14 +16,15 @@ class KMeans():
         if self.color_space not in implemented_cs:
             raise Exception('Unkwnown color space: '+ str(color_space))
 
+    #将被实际调用的对光源聚类的方法，输入一系列光源值，输出聚类后结果
     def initialize(self, illuminants):
         if illuminants is None:
             # if no illuminants are provided, init with zeros
-            clusters = torch.FloatTensor(np.zeros((self.k, 3))).unsqueeze(0)
+            clusters = torch.FloatTensor(np.zeros((self.k, 3))).unsqueeze(0)#(1,120,3)
             return clusters
         else:
             # convert illuminants to the desired color space
-            illuminants = np.array(illuminants)
+            illuminants = np.array(illuminants)#(379,3)
             if self.color_space == 'rg_bg':
                 illuminants_new = np.zeros((illuminants.shape[0], 2))
                 for i in range(illuminants.shape[0]):
@@ -40,13 +41,13 @@ class KMeans():
                 illuminants = illuminants_new
 
             # run K-Means
-            kmeans = sklearn.cluster.KMeans(n_clusters = self.k).fit(illuminants)
+            kmeans = sklearn.cluster.KMeans(n_clusters = self.k).fit(illuminants)#一步到位，返回的是一个大类
 
             # convert back to RGB color space
             if self.color_space == 'rgb':
-                clusters = np.copy(kmeans.cluster_centers_)
+                clusters = np.copy(kmeans.cluster_centers_)#取聚类中心值，(120,3)
                 # normalize illuminants
-                for i in range(clusters.shape[0]):
+                for i in range(clusters.shape[0]):#每三个值L2归一化
                     clusters[i, :] = normalize_illuminant(clusters[i, :])
             elif self.color_space == 'rg_bg':
                 clusters_rg_bg = np.copy(kmeans.cluster_centers_)
@@ -66,7 +67,7 @@ class KMeans():
                     clusters[i, :] = normalize_illuminant(rgb_vector)
 
             # output: pytorch tensor
-            clusters = torch.FloatTensor(clusters).unsqueeze(0)
+            clusters = torch.FloatTensor(clusters).unsqueeze(0)#(1,120,3)
             return clusters
 
     def run(self, image, clusters):

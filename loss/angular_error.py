@@ -21,6 +21,7 @@ class AngularError(nn.Module):
         # angular_error_gradsafe computes differentiable angular error,
         # arccos(x) is not differentiable at -1 and +1. We handle that,
         # as well as 0 vector.
+        #解决训练时候0向量问题；以及不可微点的问题
         err = angular_error_gradsafe(pred, labels, compute_acos=self._compute_acos)
 
         return err.mean()

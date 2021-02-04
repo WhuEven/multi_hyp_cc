@@ -11,7 +11,7 @@ import time
 import math
 import scipy.io
 
-CCM_NUS = {}
+CCM_NUS = {}#每相机的CCM校正矩阵
 with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ccm', 'nus', 'canon_eos_1D_mark3.txt'), 'r') as f:
     CCM_NUS['canon_eos_1D_mark3'] = torch.FloatTensor(np.loadtxt(f))
 
@@ -75,7 +75,7 @@ class SonySensor(Sensor):
     def __init__(self, black_level, saturation):
         super(SonySensor, self).__init__(black_level, saturation, CCM_NUS['sony'], 'SonyA57')
 
-CAMERA_CLASS_NUS = {}
+CAMERA_CLASS_NUS = {}#类成员
 CAMERA_CLASS_NUS['canon_eos_1D_mark3'] = CanonEos1DMark3Sensor
 CAMERA_CLASS_NUS['canon_eos_600D'] = CanonEos600DSensor
 CAMERA_CLASS_NUS['fuji'] = FujiSensor
@@ -90,7 +90,7 @@ CAMERA_CLASS_NUS['sony'] = SonySensor
 class Nus(Dataset):
     def __init__(self, subdataset, data_conf, file, cache):
         self._rgbs = []
-        self._illuminants = []
+        self._illuminants = []#按_rgbs顺序对应存储光源gt
         self._x = {}
         self._y = {}
         self._base_path = data_conf['nus_'+subdataset]
@@ -112,6 +112,7 @@ class Nus(Dataset):
         groundtruth_illuminants = gt['groundtruth_illuminants']
         CC_coords = gt['CC_coords']
 
+        #按对应关系将光源取出
         for i in range(len(self._rgbs)):
             basename_rgb = os.path.basename(self._rgbs[i].replace('.PNG', ''))
             index = image_names.index(basename_rgb)
@@ -210,6 +211,7 @@ if __name__ == '__main__':
     import scipy
     import scipy.io
 
+    #利用cv_metadata.mat做fold分割
     path = 'data/nus/'
     camera = scipy.io.loadmat(os.path.join(path, 'cv_metadata.mat'))['cv_metadata'][0][0]
     cameras_list = ['canon_eos_1D_mark3', 'canon_eos_600D', 'fuji',

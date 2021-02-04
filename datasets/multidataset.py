@@ -11,6 +11,7 @@ import pdb
 from core.utils import import_shortcut
 
 # Class used to train/test with multiple datasets, see example: data/multidataset/nus.txt
+# 该输入文件中包含一堆txt文件path列表
 class Multidataset(Dataset):
     def __init__(self, subdataset, data_conf, file, cache):
         self._datasets = []

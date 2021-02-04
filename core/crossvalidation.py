@@ -17,9 +17,10 @@ class Crossvalidation():
         self.data_conf = data_conf
         self.args = args
         self.folds = folds
-        self.verbose = verbose
+        self.verbose = verbose#该值默认为True，表示打印很多信息
         self.inference = inference
 
+    #打印results这个字典中的所有内容
     def _print_results(self, results, prefix=None):
         if prefix is not None:
             print(prefix, end=' ')
@@ -27,6 +28,7 @@ class Crossvalidation():
             print(k +':', "{:.4f}".format(results[k]), end=' ')
         print()
 
+    #传进来有多少Fold分割方式，则运行多少次训练、验证和测试
     def run(self):
         ae_res = []
         stability_res = []
@@ -49,14 +51,14 @@ class Crossvalidation():
             # print results for each fold
             if self.verbose:
                 partial_res = summary_angular_errors([r.error for r in res])
-                self._print_results(partial_res, 'fold '+str(i))
+                self._print_results(partial_res, 'fold '+str(i))#打印单folder的error统计结果，加前缀
 
             # accumulate results into lists
-            ae_res += res
+            ae_res += res#累计每Fold的error
 
         # summary_angular_errors: computes mean, median, best 25%, etc...
         results = summary_angular_errors([r.error for r in ae_res])
         if self.verbose:
-            self._print_results(results, 'total')
+            self._print_results(results, 'total')#参数：(需打印的字典，前缀)
 
         return results

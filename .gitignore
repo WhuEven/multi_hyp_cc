@@ -4,3 +4,9 @@ cc_data/*
 core/__pycache__/*
 datasets/__pycache__/*
 transforms/__pycache__/*
+output_exp/*
+torch_model_zoo/*
+loss/__pycache__/*
+models/__pycache__/*
+samplers/__pycache__/*
+modules/candidate_selection/__pycache__/*

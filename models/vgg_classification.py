@@ -45,14 +45,14 @@ class VggClassification(VGG):
         arch = conf['network']['subarch']
         # vgg11 or vgg11 with batch norm
         if arch == 'vgg11':
-            super(VggClassification, self).__init__(make_layers(cfgs['A']), **kwargs)
+            super(VggClassification, self).__init__(make_layers(cfgs['A']), **kwargs)#调用VGG中的构造函数，使用继承重写（定义不执行）
         elif arch == 'vgg11_bn':
             super(VggClassification, self).__init__(make_layers(cfgs['A'], batch_norm=True), **kwargs)
         else:
             raise Exception('Wrong architecture')
 
         if pretrained:
-            self.load_state_dict(model_zoo.load_url(torchvision.models.vgg.model_urls[arch]))
+            self.load_state_dict(model_zoo.load_url(torchvision.models.vgg.model_urls[arch]))#加载预训练参数并赋值给VGG
 
         # this is used to remove all cameras not included in this setting,
         # if defined in the conf file.
@@ -64,8 +64,8 @@ class VggClassification(VGG):
         # load candidate selection method:
         # see folder modules/candidate_selection/ for available methods.
         class_obj = import_shortcut('modules.candidate_selection',
-                                    conf['candidate_selection']['name'])
-        self.candidate_selection = class_obj(conf, **conf['candidate_selection']['params'])
+                                    conf['candidate_selection']['name'])#python文件所在目录名，方法名（利用function转为驼峰的python文件名）
+        self.candidate_selection = class_obj(conf, **conf['candidate_selection']['params'])#给参数进kmeans.__init__(),实例化
         self._final_affine_transformation = final_affine_transformation
 
         # we keep only the first VGG convolution!
@@ -73,9 +73,10 @@ class VggClassification(VGG):
         self.relu1 = self.features[1]
 
         # then, we have N="n_pointwise_conv" number of 1x1 convs
-        N = n_features
+        # 改变n_pointwise_conv，会让中间层全都是1x1卷积，并且channel（in&out）=64,最后一层输出为n_features指定的
+        N = n_features#128
         pointwise_layers = []
-        for n_layers in range(n_pointwise_conv):
+        for n_layers in range(n_pointwise_conv):#2
             n_output = 64
             if n_layers == n_pointwise_conv - 1:
                 n_output = N
@@ -109,8 +110,8 @@ class VggClassification(VGG):
         # n_fc_layers: number of FC layers
         # final_n: size of final prediction
         self.fc = self._fc_layers(N, n_fc_layers, final_n)
-        self.softmax = nn.Softmax(1)
-        self.logsoftmax = nn.LogSoftmax(1)
+        self.softmax = nn.Softmax(1)#按行计算
+        self.logsoftmax = nn.LogSoftmax(1)#对softmax结果取对数，<0
 
     def _fc_layers(self, n_features, n_fc_layers, n_final):
         # generate "n_fc_layers" FC layers,
@@ -135,6 +136,7 @@ class VggClassification(VGG):
     def _fc_layers_affine(self, n_features, n_fc_layers, n_layers):
         # same as previous function but we specify the size
         # of intermediate features
+        #n_layers->list, 存放中间层输出维度
         fc_layers = []
         n_curr = n_features
         for fc_i in range(n_fc_layers):
@@ -152,10 +154,10 @@ class VggClassification(VGG):
         # training set illuminants yet, so, we run initialize
         # to do the candidate selection
         if illuminants is not None:
-            # here we save one candidate set per camera
+            # here we save one candidate set per camera（key）
             for key in illuminants.keys():
-                candidates = self.candidate_selection.initialize(illuminants[key])
-                self.register_buffer('clusters_'+key, candidates)
+                candidates = self.candidate_selection.initialize(illuminants[key])#将该相机的所有光源值 给到candidate)selection.k_means.py中，调用该python文件中定义的initialize方法，对可见的训练集的379个光源进行聚类
+                self.register_buffer('clusters_'+key, candidates)#向模块添加持久缓冲区,例如，生成类变量self.clusters_ShiGehler,在后面forward中被调用
         else:
             # if illuminants is None, we init the candidate set with
             # default values (zeros). This is used for inference scripts,
@@ -167,26 +169,26 @@ class VggClassification(VGG):
                 self.register_buffer('clusters_'+key, candidates)
 
         # Number of candidate illuminants
-        self.n_output = candidates.shape[1]
+        self.n_output = candidates.shape[1]#3
 
-        # Final affine transformation (B and G in the paper)
+        # Final affine transformation (B and G in the paper)用于调整模型对不同设备的适应性
         if self._final_affine_transformation:
-            self.mult = nn.Parameter(torch.ones(1, self.n_output))
+            self.mult = nn.Parameter(torch.ones(1, self.n_output))#1,120
             self.add = nn.Parameter(torch.zeros(1, self.n_output))
 
     def _inference(self, input, gt_illuminant, sensor, candidates, do_dropout = True):
         # output logics and confs
-        logits = torch.zeros(input.shape[0], candidates.shape[1]).type(input.type())
+        logits = torch.zeros(input.shape[0], candidates.shape[1]).type(input.type())#32,120
 
         # loop illuminants
-        for i in range(candidates.shape[1]):
+        for i in range(candidates.shape[1]):#120
             # get illuminant "i"
-            illuminant = candidates[:, i, :].unsqueeze(-1).unsqueeze(-1)
+            illuminant = candidates[:, i, :].unsqueeze(-1).unsqueeze(-1)#1,3,1,1
             # generate candidate image! image / illuminant
-            input2 = input / illuminant
+            input2 = input / illuminant#对角模型，直接除接完事了
 
             # avoid log(0)
-            input2 = torch.log(input2 + 0.000001)
+            input2 = torch.log(input2 + 0.000001)#取对数值
 
             # first conv (from VGG)
             x = self.conv1(input2)
@@ -199,69 +201,72 @@ class VggClassification(VGG):
             x = F.adaptive_avg_pool2d(x, (1, 1))
 
             # dropout (in paper=0.5)
-            x = self.dropout(x)
+            x = self.dropout(x)#32,128,1,1
 
             # reshape 1x1x128 -> 128
-            x = x.view(x.size(0), -1)
+            x = x.view(x.size(0), -1)#32,128
             # FC layers: 128 -> 1
             x = self.fc(x)
 
             # save log-likelihood for this illuminant
-            logits[:, i] = x[:, 0]
+            logits[:, i] = x[:, 0]#一组batch的图的第一个光源的可能性，第一列
 
         # apply affine transformation (G and B)
         if self._final_affine_transformation:
             # just get B and G
-            mult = self.mult
-            add = self.add
+            mult = self.mult#1,120
+            add = self.add#1,120
 
             # save softmax of the pre-affine output (for visualization)
             bin_probability_pre_affine = self.softmax(logits)
             # apply aff. trans.
-            logits = mult*logits + add
+            logits = mult*logits + add#32,120
 
         # softmax!
-        bin_probability = self.softmax(logits)
+        bin_probability = self.softmax(logits)#按行求softmax，32,120
 
         # do linear comb. in RGB
-        illuminant_r = torch.sum(bin_probability*candidates[:, :, 0], 1, keepdim=True)
+        # candidates(1,120,3)
+        illuminant_r = torch.sum(bin_probability*candidates[:, :, 0], 1, keepdim=True)#32,1
         illuminant_g = torch.sum(bin_probability*candidates[:, :, 1], 1, keepdim=True)
         illuminant_b = torch.sum(bin_probability*candidates[:, :, 2], 1, keepdim=True)
-        illuminant = torch.cat([illuminant_r, illuminant_g, illuminant_b], 1)
+        illuminant = torch.cat([illuminant_r, illuminant_g, illuminant_b], 1)#32,3
 
         # l2-normalization of the vector
-        norm = torch.norm(illuminant, p=2, dim=1, keepdim=True)
+        norm = torch.norm(illuminant, p=2, dim=1, keepdim=True)#32,1
         illuminant = illuminant.div(norm.expand_as(illuminant))
 
         # save output to dictionary
+        # illuminant: 最终光源输出值        bin_probability2:网络模型输出的softmax结果
+        # logits:不做softmax的逻辑回归结果  candidates:该数据集的候选光源
         d = {'illuminant': illuminant, 'bin_probability2': bin_probability,
             'logits': logits, 'candidates': candidates}
 
         if self._final_affine_transformation:
             d["bias2"] = add
             d["gain2"] = mult
-            d["bin_probability_preaffine"] = bin_probability_pre_affine
+            d["bin_probability_preaffine"] = bin_probability_pre_affine#不做B,G的设备相关调整的softmax结果
 
         return d
 
     def forward(self, data, image_index=0):
-        input = data['rgb']
+        input = data['rgb']#data_key:'rgb'(32,1,3,64,64),'mask'(32,1,64,64),'illuminant'(32,3),'sensor'字典（key:'camera_name'(32),'black_level'(32),'saturation'(32),'ccm'(32,3,3)）,'path'(32),'epoch'
         if 'illuminant' in data:
             gt_illuminant = Variable(data['illuminant'])
         else:
             gt_illuminant = None
-        sensor = data['sensor']
+        sensor = data['sensor']#'sensor'字典,[{}],（key:'camera_name'(32),'black_level'(32),'saturation'(32),'ccm'(32,3,3)）
 
         # only one image
-        input = input[:, image_index, ...]
+        input = input[:, image_index, ...]#32,3,64,64
 
         # get candidates
-        candidates_cam = getattr(self, 'clusters_' + sensor[0]['camera_name'][0])
+        candidates_cam = getattr(self, 'clusters_' + sensor[0]['camera_name'][0])#1,120,3,即，self.clusters_ShiGehler，在initial中注入到缓存中的
 
         # run image specific tunning of the candidate set
         # this only applies for Minkowski candidate selection
         # (modules/candidate_selection/minkowski.py)
-        candidates = self.candidate_selection.run(input, candidates_cam)
+        candidates = self.candidate_selection.run(input, candidates_cam)#do nothing: no candidate tunning for each image
 
         # do inference
         return self._inference(input, gt_illuminant, sensor, candidates, self.training)

@@ -23,10 +23,10 @@ def batch_logdet2x2(matrix):
 
 # angular error in degrees for numpy
 def angular_error_degress_np(ill1, ill2):
-    err = 180.0*angular_error_np(ill1, ill2)/math.pi
+    err = 180.0*angular_error_np(ill1, ill2)/math.pi#最终用于评价的角度误差，为角度制
     return err
 
-# normalize illuminant (numpy)
+# normalize illuminant (numpy)，光源聚类结果L2范数归一化
 def normalize_illuminant(illuminant):
     norm = math.sqrt((illuminant*illuminant).sum())
     illuminant = illuminant / norm
@@ -52,11 +52,11 @@ def angular_error_degrees(outputs, labels):
     err = 180.0*angular_error(outputs, labels)/math.pi
     return err
 
-# differentiable angular error for pytorch
+# differentiable angular error for pytorch，用于训练
 def angular_error_gradsafe(pred, labels, compute_acos=True, vectordim=1):
     # avoid 0 vector
-    pred = pred.clamp(1e-10)
-    dot = torch.sum(torch.mul(pred, labels), dim=vectordim, keepdim=True)
+    pred = pred.clamp(1e-10)#clamp上下限处理
+    dot = torch.sum(torch.mul(pred, labels), dim=vectordim, keepdim=True)#对应位置元素相乘
     norm_pred = torch.norm(pred, dim=vectordim, keepdim=True)
     norm_labels = torch.norm(labels, dim=vectordim, keepdim=True)
     norm = norm_pred * norm_labels
@@ -64,7 +64,7 @@ def angular_error_gradsafe(pred, labels, compute_acos=True, vectordim=1):
     if compute_acos:
         ddn = dot.div(norm.expand_as(dot))
         ddn = ddn.clamp(-0.999999, 0.999999)
-        err = torch.acos(ddn)
+        err = torch.acos(ddn)#弧度制[0,π]
     else:
         err = norm - dot
 
@@ -237,24 +237,25 @@ def log_uv_histogram_checks(conf, illuminants):
 
 # import class function
 def import_class(module, class_name):
-    module = importlib.import_module(module)
-    return getattr(module, class_name)
+    module = importlib.import_module(module)#动态导入对象，此处获得的是model文件夹下vgg_classification.py中定义的类，即py文件中定义的类
+    return getattr(module, class_name)#返回一个对象属性值，参数（对象，属性（字符串））
 
 # convert CamelCase to snake_case
+#转换至标准文件命名方式，例k_means,vgg_classification
 def camel_to_snake(name):
-    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
-    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)#正则表达式，替换；变成以大写字母分割的形式，如Blacklevel_AndSaturation
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()#变成全部小写且再次分割，如blacklevel_and_saturation
 
 # import module function
 def import_shortcut(base_module, class_name):
-    return import_class(base_module+'.'+camel_to_snake(class_name), class_name)
+    return import_class(base_module+'.'+camel_to_snake(class_name), class_name)#base_module为transforms等目录名，class_name为BalcklevelAndSaturation等文件名（未处理）
 
 # create list of transforms
 def create_all_transforms(worker, transform_conf, return_list = False):
     t = []
-    for transform in transform_conf:
-        name = list(transform.keys())[0]
-        args = transform[name]
+    for transform in transform_conf:#transform_conf->list,transform->字典
+        name = list(transform.keys())[0]#取该字典所有key的第一个key，如'BlacklevelAndSaturation'
+        args = transform[name]#取该key值对应的value，如{'saturation_scale':0.95}
         t.append(create_transform(name, worker, args))
 
     if return_list:
@@ -272,6 +273,7 @@ def create_optimizer(t, model_params, opt_params = None):
         return cl(model_params, **opt_params)
 
 # create transform
+#对transform内容，加载对应的类，并传入参数
 def create_transform(t, worker, arguments):
     try:
         cl = import_shortcut('transforms', t)
@@ -290,7 +292,7 @@ def find_loguv_warp_conf(transforms):
 
     from transforms.log_uv_histogram_wrap import LogUvHistogramWrap
     for t in transforms.transforms:
-        if isinstance(t, LogUvHistogramWrap):
+        if isinstance(t, LogUvHistogramWrap):#判断一个对象是否是一个已知的类型
             return t._conf
 
     return None

@@ -15,15 +15,20 @@ class Factory:
         self._data_conf = data_conf
         self._cache_manager = cache_manager
         self._args = args
-        self._verbose = verbose
+        self._verbose = verbose#true
+
+#conf:name,network,candidate_selection,cameras,loss,optimizer,pretrained,epochs,batch_size,learning_rate_scheduler,transforms,transforms_valtest,cache_transforms,print_frequency_epoch,tensorboard_frequency,tensorboard_frequency_im
+#data_conf:base,tmp,……,(json文件内容)
+#args:/crossvalidation.py中的参数
 
     # generate CNN model
     def get_model(self):
         if self._verbose:
             str_model = 'using pre-trained model' if self._conf['pretrained'] else 'creating model'
             print("=> {} '{}/{}'".format(str_model, self._conf['network']['arch'], self._conf['network']['subarch']))
+            #例如：using pre-trained model 'VggClassification/vgg11'
         # import from /models/ directory
-        model_class = import_shortcut('models', self._conf['network']['arch'])
+        model_class = import_shortcut('models', self._conf['network']['arch'])#此处为了调用写好的网络模型文件，其中"models"是指./下的文件夹，而后面的是py文件的命名方式，例如vgg_classification.py
         return model_class(self._conf, pretrained=self._conf['pretrained'], **self._conf['network']['params'])
 
     # generate optimizer
@@ -157,6 +162,7 @@ class Factory:
 
         model.load_state_dict(state_dict, strict = strict)
 
+    # get results for the best model，train和validation之后，加载最佳结果，用于test
     def load_model(self, state_file, model, optimizer = None, use_gpu = None):
         # load model from checkpoint file:
         # get recover the best checkpoint, last epoch, and optimizer state

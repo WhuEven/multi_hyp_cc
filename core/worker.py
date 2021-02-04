@@ -22,10 +22,10 @@ class EpochStats():
 
 class Worker():
     def __init__(self, fold, conf, data_conf, cache_manager, args, inference=False, verbose=True):
-        self._args = args
-        self._fold = fold
-        self._conf = conf
-        self._data_conf = data_conf
+        self._args = args#从hold out.py或crossvalidation.py中获取的配置参数
+        self._fold = fold#交叉验证的fold，若为hold out，则为0
+        self._conf = conf#实验的配置文件，已从json文件读取
+        self._data_conf = data_conf#默认为data下的paths.json文件
         self._inference = inference
         self._verbose = verbose
         self.tmp_dir = self._data_conf['tmp']
@@ -117,7 +117,7 @@ class Worker():
         # create transforms
         transforms = create_all_transforms(self, self._conf['transforms'])
         # copy FFCC histogram settings to conf (from transform settings)
-        self._conf['log_uv_warp_histogram'] = find_loguv_warp_conf(transforms)
+        self._conf['log_uv_warp_histogram'] = find_loguv_warp_conf(transforms)#只有transforms中包含了LogUvHistogramWrap操作才返回对数色度直方图以及对应mask权重
 
         # create model
         self.model = self._factory.get_model()
@@ -135,7 +135,7 @@ class Worker():
             # optionally resume from a checkpoint
             start_epoch, best, self.model = self._factory.resume_from_checkpoint(checkpoint, self.model, None, gpu)
         else:
-            checkpoint = self._checkpoint_file
+            checkpoint = self._checkpoint_file#传入输出checkpoint的地址（字符串）
 
         # create validation/test transforms if defined, otherwise, the same as training
         if self._conf['transforms_valtest'] is not None:
@@ -147,7 +147,7 @@ class Worker():
             torch.cuda.set_device(gpu)
             cudnn.benchmark = True
 
-        if args.testfile is not None:
+        if args.testfile is not None:#测试集fold的txt文件路径
             # test loader
             test_dataset, test_loader, test_loader_cache = self._factory.get_loader(args.testfile, transforms_valtest, gpu)
             # if evaluating, copy model to GPU, evaluate and die
@@ -157,7 +157,7 @@ class Worker():
                 return self.validate(test_loader) # we finish here!
 
         # if validation file is defined
-        if args.valfile is not None:
+        if args.valfile is not None:#验证集fold的txt文件路径
             # to save memory, don't do it again if valfile==testfile
             if args.valfile == args.testfile:
                 val_dataset = test_dataset
@@ -174,7 +174,7 @@ class Worker():
         self.model.initialize(train_dataset.get_illuminants_by_sensor())
 
         # optionally pretrain model
-        self._factory.pretrain_model(self._pretrained_model, self.model)
+        self._factory.pretrain_model(self._pretrained_model, self.model)#训练时,若pretrainedmodel项不传值进来，则返回None，否则加载已训练的参数
 
         # optionally resume from a checkpoint
         self.optimizer, optimizer_name = self._factory.get_optimizer(self.model)
@@ -187,11 +187,11 @@ class Worker():
         self.logger = TensorBoardLogger(self._tensorboard_dir)
 
         # learning rate scheduler (if defined)
-        scheduler, scheduler_name = self._factory.get_lr_scheduler(start_epoch, self.optimizer)
+        scheduler, scheduler_name = self._factory.get_lr_scheduler(start_epoch, self.optimizer)#使用pytorch内置的lr_scheduler方法
 
         # copy stuff to GPU
         if gpu is not None:
-            self.criterion = self.criterion.cuda(gpu)
+            self.criterion = self.criterion.cuda(gpu)#loss
             self.model = self.model.cuda(gpu)
 
         # for FFCC, we reset the optimizer after some epochs
@@ -243,7 +243,7 @@ class Worker():
                     scheduler.optimizer = self.optimizer
 
             # train for one epoch
-            train_stats = self.train(train_loader, epoch)
+            train_stats = self.train(train_loader, epoch)# statistics of epoch: angular error (mean, median), mean loss and time it took
 
             # validation
             val_stats = None
@@ -279,6 +279,7 @@ class Worker():
         start_epoch, best, self.model = self._factory.load_model(self._best_checkpoint_file, self.model, self.optimizer, gpu)
 
         # return results from best epoch
+        # test
         if args.testfile is not None:
             start_time = time.time()
             results = self.validate(test_loader)
@@ -333,7 +334,7 @@ class Worker():
             data['epoch'] = epoch # we know what's the current epoch
             err = err_m = output = loss = None
             def closure():
-                nonlocal err, err_m, output, loss
+                nonlocal err, err_m, output, loss#外部嵌套函数内的变量
 
                 self.optimizer.zero_grad()
                 output = self.model(data)
@@ -360,6 +361,7 @@ class Worker():
         t = time.time() - start_t
         return EpochStats(mean_err, med_err, mean_loss, t)
 
+    # 用于validation和test过程
     def validate(self, val_loader, epoch=None):
         with torch.no_grad(): # don't compute gradients
             save_full_res = self._args.save_fullres

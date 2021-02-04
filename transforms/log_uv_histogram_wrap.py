@@ -3,7 +3,7 @@
 import numpy as np
 from core.utils import rgb_to_uv
 
-#计算图像uv直方图，返回权值和直方图，输入conf为配置的超参数信息
+#计算图像uv直方图，返回权值（用来掩蔽colorchecker的mask）和直方图，输入conf为配置的超参数信息
 def log_uv_histogram_wrapped(im, mask, conf):
     #FFCC wrap uv使用的三个参数
     num_bins = conf['num_bins']

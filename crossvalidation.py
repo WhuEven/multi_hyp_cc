@@ -99,7 +99,8 @@ def main():
     # to avoid reading them more than once
     cache = CacheManager(conf)
 
-    folds = []
+    folds = []#存放多个FoldX.txt分割的Fold类，n个txt则有n个Fold对象
+    #下方len==3
     for fold in range(len(splits)):
         # This is the format for cross validation files:
         # DatasetClass
@@ -113,11 +114,11 @@ def main():
         #    be the validation folds.
         # 3. TestFoldX.txt is assumed to be the same as the validation fold unless it is specified.
         #    Validation results are shown during training, and Test results are shown at the end.
-        split_list = splits[fold].split(' ')
+        split_list = splits[fold].split(' ')#取第一行，即单个FoldX.txt，下方len==1
         if len(split_list) == 1:
-            valfile = splits[fold]
+            valfile = splits[fold]#当前行fold做验证集
             trainfiles = list(splits)
-            trainfiles.remove(valfile)
+            trainfiles.remove(valfile)#剩余行fold做训练集
             testfile = valfile
         elif len(split_list) == 2:
             trainfiles, valfile = split_list
@@ -132,7 +133,7 @@ def main():
 
     # Go to core/crossvalidation.py for more details
     cv = Crossvalidation(cache, conf, data_conf, args, folds)
-    cv.run()
+    cv.run()#执行训练、验证、测试，并返回单个epoch的results字典（已整理，包含mean，25%，medium等）
 
 if __name__ == '__main__':
     main()
