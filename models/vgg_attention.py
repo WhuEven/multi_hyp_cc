@@ -86,7 +86,7 @@ class VggAttention(VGG):
         self.sp_at = SpatialAttention()
         self.conv2 = nn.Conv2d(64, 64, 3, padding=1, bias=True)
         self.relu2 = nn.ReLU()
-        self.ch_at = ChannelAttention()
+        self.ch_at = ChannelAttention(64)
         self.conv3 = nn.Conv2d(64, 128, 3, padding=1, bias=True)
         self.relu3 = nn.ReLU()
         
