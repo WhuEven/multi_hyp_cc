@@ -24,7 +24,7 @@
   },
   "pretrained": true,
   "epochs": 200,
-  "batch_size": 32,
+  "batch_size": 16,
   "learning_rate_scheduler": {
     "name": "MultiStepLR",
     "params": {
