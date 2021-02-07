@@ -23,7 +23,7 @@
     }
   },
   "pretrained": true,
-  "epochs": 200,
+  "epochs": 500,
   "batch_size": 16,
   "learning_rate_scheduler": {
     "name": "MultiStepLR",

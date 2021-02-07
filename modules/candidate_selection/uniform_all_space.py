@@ -6,13 +6,17 @@ from core.utils import normalize_illuminant
 # uniform sampling: get max=1 and min=0 in r/g, b/g
 # and sample uniformly
 class UniformAllSpace():
-    def __init__(self, conf, k, color_space = 'rg_bg'):
+    def __init__(self, conf, k, color_space = 'rg_bg', min_rg = 0.1, max_rg = 2.0, min_bg = 0.1, max_bg = 2.0):
         self.k = k
         self.color_space = color_space
         implemented_cs = ['rg_bg']
 
         if self.color_space not in implemented_cs:
             raise Exception('Unkwnown color space: '+ str(color_space))
+        self.min_rg = min_rg
+        self.max_rg = max_rg
+        self.min_bg = min_bg
+        self.max_bg = max_bg
 
     def initialize(self, illuminants):
         if illuminants is None:
@@ -20,19 +24,19 @@ class UniformAllSpace():
             return clusters
         else:
             illuminants = np.array(illuminants)
-            min_rg = 0.1
-            max_rg = 1.5
-            min_bg = 0.1
-            max_bg = 1.5
-            # for i in range(illuminants.shape[0]):
-            #     rg = illuminants[i,0] / illuminants[i,1] # r / g
-            #     bg = illuminants[i,2] / illuminants[i,1] # b / g
+            min_rg = self.min_rg
+            max_rg = self.max_rg
+            min_bg = self.min_bg
+            max_bg = self.max_bg
+            for i in range(illuminants.shape[0]):
+                rg = illuminants[i,0] / illuminants[i,1] # r / g
+                bg = illuminants[i,2] / illuminants[i,1] # b / g
 
-            #     min_rg = min(min_rg, rg)
-            #     max_rg = max(max_rg, rg)
+                min_rg = min(min_rg, rg)
+                max_rg = max(max_rg, rg)
 
-            #     min_bg = min(min_bg, bg)
-            #     max_bg = max(max_bg, bg)
+                min_bg = min(min_bg, bg)
+                max_bg = max(max_bg, bg)
 
             real_k = self.k*self.k
             clusters_rg_bg = np.zeros((real_k, 2))
