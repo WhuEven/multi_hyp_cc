@@ -1,10 +1,10 @@
 {
-  "name": "sp_ch_allcolorspaceuniform_bg",
+  "name": "vgg_danet",
   "network": {
-    "arch": "VggAttention2",
+    "arch": "VggDanet",
     "subarch": "vgg11",
     "params": {"dropout": 0.5, "fix_base_network": true,
-              "final_affine_transformation": true}
+              "final_affine_transformation": true, "n_fc_layers" : 2, "n_features" : 16}
   },
   "candidate_selection": {
     "name": "UniformAllSpace",

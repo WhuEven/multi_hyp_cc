@@ -17,12 +17,12 @@ import numpy as np
 
 import time
 
-from modules.spatial_attention import PositionAttentionModule as SpatialAttention
-from modules.channel_attention import ChannelAttentionModule as ChannelAttention
+from modules.spatial_attention import PositionAttentionModule
+from modules.channel_attention import ChannelAttentionModule
 
 # 添加两个注意力机制
 
-class VggAttention2(VGG):
+class VggDanet(VGG):
 
     def __init__(self, conf, pretrained=False, dropout = 0.5,
                 fix_base_network = False,
@@ -48,9 +48,9 @@ class VggAttention2(VGG):
         arch = conf['network']['subarch']
         # vgg11 or vgg11 with batch norm
         if arch == 'vgg11':
-            super(VggAttention2, self).__init__(make_layers(cfgs['A']), **kwargs)#调用VGG中的构造函数，使用继承重写（定义不执行）
+            super(VggDanet, self).__init__(make_layers(cfgs['A']), **kwargs)#调用VGG中的构造函数，使用继承重写（定义不执行）
         elif arch == 'vgg11_bn':
-            super(VggAttention2, self).__init__(make_layers(cfgs['A'], batch_norm=True), **kwargs)
+            super(VggDanet, self).__init__(make_layers(cfgs['A'], batch_norm=True), **kwargs)
         else:
             raise Exception('Wrong architecture')
 
@@ -77,34 +77,41 @@ class VggAttention2(VGG):
         self.conv1 = self.features[0]
         self.relu1 = self.features[1]
 
+        # remove VGG features and classifier (FCs of the net)
+        del self.features
+        del self.classifier
+
         # then, we have N="n_pointwise_conv" number of 1x1 convs
         # 改变n_pointwise_conv，会让中间层全都是1x1卷积，并且channel（in&out）=64,最后一层输出为n_features指定的
         # 修改此部分，添加空间注意力和通道注意力
         N = n_features#128
+        in_channels = 64
+        norm_layer = nn.BatchNorm2d()
 
-        #加载注意力机制
-        self.sp_at = SpatialAttention(N)
-        # self.conv2 = nn.Conv2d(64, 64, 3, padding=1, bias=True)
-        # self.relu2 = nn.ReLU()
-        self.ch_at = ChannelAttention()
-        # self.conv3 = nn.Conv2d(64, 128, 3, padding=1, bias=True)
-        # self.relu3 = nn.ReLU()
-        
-
-
-        pointwise_layers = []
-        for n_layers in range(n_pointwise_conv):#2
-            n_output = 64
-            if n_layers == n_pointwise_conv - 1:
-                n_output = N
-            pointwise_layers.append(nn.Conv2d(64, n_output, kernel_size=1))
-            pointwise_layers.append(nn.ReLU(inplace=True))
-
-        self.pointwise_conv = nn.Sequential(*pointwise_layers)
-
-        # remove VGG features and classifier (FCs of the net)
-        del self.features
-        del self.classifier
+        # Danet
+        inter_channels = in_channels // 4
+        self.conv_p1 = nn.Sequential(
+            nn.Conv2d(in_channels, inter_channels, 3, padding=1, bias=False),
+            norm_layer(inter_channels),
+            nn.ReLU(True)
+        )
+        self.conv_c1 = nn.Sequential(
+            nn.Conv2d(in_channels, inter_channels, 3, padding=1, bias=False),
+            norm_layer(inter_channels),
+            nn.ReLU(True)
+        )
+        self.pam = PositionAttentionModule(inter_channels)
+        self.cam = ChannelAttentionModule()
+        self.conv_p2 = nn.Sequential(
+            nn.Conv2d(inter_channels, inter_channels, 3, padding=1, bias=False),
+            norm_layer(inter_channels),
+            nn.ReLU(True)
+        )
+        self.conv_c2 = nn.Sequential(
+            nn.Conv2d(inter_channels, inter_channels, 3, padding=1, bias=False),
+            norm_layer(inter_channels),
+            nn.ReLU(True)
+        )
 
         # if this option is enabled, we don't learn the first conv weights,
         # they are copied from VGG pretrained on Imagenet (from pytorch),
@@ -211,18 +218,18 @@ class VggAttention2(VGG):
             x = self.conv1(input2)
             x = self.relu1(x)
 
-            # point-wise convs (1x1)
-            x = self.pointwise_conv(x)
-            feat_sp = self.sp_at(x)
-            # x = self.conv2(x)
-            # x = self.relu2(x)
-            x = self.ch_at(x)
-            # x = self.conv3(x)
-            # x = self.relu3(x)
-            x = feat_sp + x
+            feat_p = self.conv_p1(x)
+            feat_p = self.pam(feat_p)
+            feat_p = self.conv_p2(feat_p)
+
+            feat_c = self.conv_c1(x)
+            feat_c = self.cam(feat_c)
+            feat_c = self.conv_c2(feat_c)
+
+            feat_fusion = feat_p + feat_c
 
             # global average pooling, from 64x64x128 to 1x1x128
-            x = F.adaptive_avg_pool2d(x, (1, 1))
+            x = F.adaptive_avg_pool2d(feat_fusion, (1, 1))
 
             # dropout (in paper=0.5)
             x = self.dropout(x)#32,128,1,1
