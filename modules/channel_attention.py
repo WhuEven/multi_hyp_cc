@@ -18,3 +18,25 @@ class ChannelAttention(nn.Module):
         max_out = self.fc2(self.relu1(self.fc1(self.max_pool(x))))
         out = avg_out + max_out
         return self.sigmoid(out)
+
+#copy from danet:https://github.com/Andy-zhujunwen/danet-pytorch/blob/82ba577edcc5535b169f35590a6f48a4c2944ae1/danet/danet.py#L97
+class ChannelAttentionModule(nn.Module):
+    """Channel attention module"""
+
+    def __init__(self, **kwargs):
+        super(ChannelAttentionModule, self).__init__()
+        self.beta = nn.Parameter(torch.zeros(1))
+        self.softmax = nn.Softmax(dim=-1)
+
+    def forward(self, x):
+        batch_size, _, height, width = x.size()
+        feat_a = x.view(batch_size, -1, height * width)
+        feat_a_transpose = x.view(batch_size, -1, height * width).permute(0, 2, 1)
+        attention = torch.bmm(feat_a, feat_a_transpose)
+        attention_new = torch.max(attention, dim=-1, keepdim=True)[0].expand_as(attention) - attention
+        attention = self.softmax(attention_new)
+
+        feat_e = torch.bmm(attention, feat_a).view(batch_size, -1, height, width)
+        out = self.beta * feat_e + x
+
+        return out
