@@ -216,10 +216,10 @@ class VggAttention2(VGG):
             feat_sp = self.sp_at(x)
             # x = self.conv2(x)
             # x = self.relu2(x)
-            feat_ch = self.ch_at(x)
+            x = self.ch_at(x)
             # x = self.conv3(x)
             # x = self.relu3(x)
-            x = feat_sp + feat_ch
+            x = feat_sp + x
 
             # global average pooling, from 64x64x128 to 1x1x128
             x = F.adaptive_avg_pool2d(x, (1, 1))

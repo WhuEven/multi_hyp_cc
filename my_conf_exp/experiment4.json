@@ -8,7 +8,7 @@
   },
   "candidate_selection": {
     "name": "UniformAllSpace",
-    "params": {"k": 13}
+    "params": {"k": 11}
   },
   "cameras": ["ShiGehler"],
   "loss": {
@@ -24,7 +24,7 @@
   },
   "pretrained": true,
   "epochs": 120,
-  "batch_size": 16,
+  "batch_size": 4,
   "learning_rate_scheduler": {
     "name": "ReduceLROnPlateau",
     "params": {
