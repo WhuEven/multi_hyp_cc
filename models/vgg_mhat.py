@@ -105,6 +105,14 @@ class VggMHAT(VGG):
         if pretrained:
             self.load_state_dict(model_zoo.load_url(torchvision.models.vgg.model_urls[arch]))#加载预训练参数并赋值给VGG
 
+        # we keep only the first VGG convolution!
+        self.conv1 = self.features[0]
+        self.relu1 = self.features[1]
+
+        # remove VGG features and classifier (FCs of the net)
+        del self.features
+        del self.classifier
+
         # this is used to remove all cameras not included in this setting,
         # if defined in the conf file.
         if 'cameras' in conf:
@@ -119,22 +127,18 @@ class VggMHAT(VGG):
         self.candidate_selection = class_obj(conf, **conf['candidate_selection']['params'])#给参数进kmeans.__init__(),实例化
         self._final_affine_transformation = final_affine_transformation
 
-        # we keep only the first VGG convolution!
-        self.conv1 = self.features[0]
-        self.relu1 = self.features[1]
+
 
         # then, we have N="n_pointwise_conv" number of 1x1 convs
         # 改变n_pointwise_conv，会让中间层全都是1x1卷积，并且channel（in&out）=64,最后一层输出为n_features指定的
         # BoTNet_num = 1
         BoTNet_layers = []
-        for n_layers in range(n_pointwise_conv):
+        for _ in range(n_pointwise_conv):
             BoTNet_layers.append(MHAT_block(n_features))
 
         self.pointwise_conv = nn.Sequential(*BoTNet_layers)
 
-        # remove VGG features and classifier (FCs of the net)
-        del self.features
-        del self.classifier
+
 
         # if this option is enabled, we don't learn the first conv weights,
         # they are copied from VGG pretrained on Imagenet (from pytorch),
