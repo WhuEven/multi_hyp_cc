@@ -57,10 +57,10 @@ class MHAT_block(nn.Module):
         super(MHAT_block, self).__init__()
 
         BoTNet_layers = []
-        BoTNet_layers.append(nn.Conv2d(64, n_output, kernel_size=1))
+        BoTNet_layers.append(nn.Conv2d(64, n_features, kernel_size=1))
         BoTNet_layers.append(nn.ReLU(inplace=True))
-        BoTNet_layers.append(MHSA(n_dims=n_output))
-        BoTNet_layers.append(nn.Conv2d(n_output, 64, kernel_size=1))
+        BoTNet_layers.append(MHSA(n_dims=n_features))
+        BoTNet_layers.append(nn.Conv2d(n_features, 64, kernel_size=1))
         BoTNet_layers.append(nn.ReLU(inplace=True))
 
         self.MHAT_block_layer = nn.Sequential(*BoTNet_layers)
