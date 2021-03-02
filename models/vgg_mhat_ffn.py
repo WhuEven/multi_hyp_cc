@@ -78,7 +78,7 @@ class MHAT_block(nn.Module):
 
 
 
-class VggMHATffn(VGG):
+class VggMHATFfn(VGG):
 
     def __init__(self, conf, pretrained=False, dropout = 0.5,
                 fix_base_network = False,
