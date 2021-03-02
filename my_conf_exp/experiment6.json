@@ -1,0 +1,47 @@
+{
+  "name": "2021-3-2-MHATb2_noBN_warpped",
+  "network": {
+    "arch": "VggMHATffn",
+    "subarch": "vgg11",
+    "params": {"dropout": 0.5, "fix_base_network": true,
+              "final_affine_transformation": true, "n_pointwise_conv" : 1, "n_features" : 64}
+  },
+  "candidate_selection": {
+    "name": "KMeans",
+    "params": {"k": 120}
+  },
+  "cameras": ["ShiGehler"],
+  "loss": {
+    "name": "AngularError",
+    "params": {"compute_acos": true}
+  },
+  "optimizer": {
+    "name": "Adam",
+    "params": {
+      "lr": 3e-3,
+      "weight_decay": 0
+    }
+  },
+  "pretrained": true,
+  "epochs": 120,
+  "batch_size": 32,
+  "learning_rate_scheduler": {
+    "name": "ReduceLROnPlateau",
+    "params": {
+      "factor": 0.5,
+      "patience": 5,
+      "verbose": true
+    }
+  },
+  "transforms": [
+    {"BlacklevelAndSaturation": {"saturation_scale": 0.95}},
+    {"Resize": {"size": [64, 64]}},
+    {"Normalize": null}
+  ],
+  "transforms_valtest": null,
+  "cache_transforms": true,
+  "print_frequency_epoch": 1,
+  "tensorboard_frequency": 1,
+  "tensorboard_frequency_im": -1
+
+}
