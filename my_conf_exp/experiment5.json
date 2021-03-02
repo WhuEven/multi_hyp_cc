@@ -1,5 +1,5 @@
 {
-  "name": "2021-3-2-MHATb1_noBN_warpped",
+  "name": "2021-3-2-MHATb2_noBN_warpped",
   "network": {
     "arch": "VggMHAT",
     "subarch": "vgg11",
@@ -18,7 +18,7 @@
   "optimizer": {
     "name": "Adam",
     "params": {
-      "lr": 2e-3,
+      "lr": 3e-3,
       "weight_decay": 0
     }
   },
@@ -42,7 +42,6 @@
   "cache_transforms": true,
   "print_frequency_epoch": 1,
   "tensorboard_frequency": 1,
-  "tensorboard_frequency_im": -1,
-  "choose_best_epoch_by" : "val_mean_angular_error"
+  "tensorboard_frequency_im": -1
 
 }
