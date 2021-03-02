@@ -21,12 +21,14 @@ import time
 
 #Multi-head attention
 class MHSA(nn.Module):
-    def __init__(self, n_dims=16, width=64, height=64):
+    def __init__(self, n_dims=1, width=14, height=14):
         super(MHSA, self).__init__()
 
         self.query = nn.Conv2d(n_dims, n_dims, kernel_size=1)
         self.key = nn.Conv2d(n_dims, n_dims, kernel_size=1)
         self.value = nn.Conv2d(n_dims, n_dims, kernel_size=1)
+
+        # self.mutihead = nn.MultiheadAttention(,1)
 
         self.rel_h = nn.Parameter(torch.randn([1, n_dims, 1, height]), requires_grad=True)
         self.rel_w = nn.Parameter(torch.randn([1, n_dims, width, 1]), requires_grad=True)
@@ -53,14 +55,20 @@ class MHSA(nn.Module):
         return out
 
 class MHAT_block(nn.Module):
-    def __init__(self, n_features):
+    def __init__(self, input_channel, n_features):
         super(MHAT_block, self).__init__()
 
         BoTNet_layers = []
-        BoTNet_layers.append(nn.Conv2d(64, n_features, kernel_size=1))
+        BoTNet_layers.append(nn.Conv2d(input_channel, n_features, kernel_size=1))
+        # BoTNet_layers.append(nn.BatchNorm2d(n_features))
         BoTNet_layers.append(nn.ReLU(inplace=True))
+
         BoTNet_layers.append(MHSA(n_dims=n_features))
-        BoTNet_layers.append(nn.Conv2d(n_features, 64, kernel_size=1))
+        # BoTNet_layers.append(nn.BatchNorm2d(n_features))
+        BoTNet_layers.append(nn.ReLU(inplace=True))
+        
+        BoTNet_layers.append(nn.Conv2d(n_features, input_channel, kernel_size=1))
+        # BoTNet_layers.append(nn.BatchNorm2d(input_channel))
         BoTNet_layers.append(nn.ReLU(inplace=True))
 
         self.MHAT_block_layer = nn.Sequential(*BoTNet_layers)
@@ -93,6 +101,7 @@ class VggMHAT(VGG):
                 first 3x3 convolution.
             n_features (:obj:`int`): Number of feature for the final 1x1 conv.
         """
+        # super(VggMHAT, self).__init__()
         arch = conf['network']['subarch']
         # vgg11 or vgg11 with batch norm
         if arch == 'vgg11':
@@ -108,6 +117,8 @@ class VggMHAT(VGG):
         # we keep only the first VGG convolution!
         self.conv1 = self.features[0]
         self.relu1 = self.features[1]
+
+        self.amp = nn.AdaptiveMaxPool2d((14,14))
 
         # remove VGG features and classifier (FCs of the net)
         del self.features
@@ -134,7 +145,7 @@ class VggMHAT(VGG):
         # BoTNet_num = 1
         BoTNet_layers = []
         for _ in range(n_pointwise_conv):
-            BoTNet_layers.append(MHAT_block(n_features))
+            BoTNet_layers.append(MHAT_block(64, n_features))
 
         self.pointwise_conv = nn.Sequential(*BoTNet_layers)
 
@@ -245,6 +256,8 @@ class VggMHAT(VGG):
             # first conv (from VGG)
             x = self.conv1(input2)
             x = self.relu1(x)
+
+            x = self.amp(x)
 
             # point-wise convs (1x1)
             x = self.pointwise_conv(x)
