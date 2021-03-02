@@ -69,12 +69,12 @@ class MHAT_block(nn.Module):
         
         BoTNet_layers.append(nn.Conv2d(n_features, input_channel, kernel_size=1))
         # BoTNet_layers.append(nn.BatchNorm2d(input_channel))
-        BoTNet_layers.append(nn.ReLU(inplace=True))
+        # BoTNet_layers.append(nn.ReLU(inplace=True))
 
         self.MHAT_block_layer = nn.Sequential(*BoTNet_layers)
 
     def forward(self, x):
-        return x + self.MHAT_block_layer(x)
+        return F.rulu(x + self.MHAT_block_layer(x))
 
 
 

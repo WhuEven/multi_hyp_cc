@@ -77,6 +77,8 @@ class Worker():
                 metric = train_stats.mean_loss
             elif self._conf['choose_best_epoch_by'] == 'val_median_angular_error':
                 metric = val_stats.med_err
+            elif self._conf['choose_best_epoch_by'] == 'val_mean_angular_error':
+                metric = val_stats.mean_err
             else:
                 raise Exception('Invalid "choose_best_epoch_by" option')
 

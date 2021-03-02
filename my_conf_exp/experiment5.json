@@ -1,5 +1,5 @@
 {
-  "name": "2021-3-1-MHATb1_noBN",
+  "name": "2021-3-2-MHATb1_noBN_warpped",
   "network": {
     "arch": "VggMHAT",
     "subarch": "vgg11",
@@ -18,13 +18,13 @@
   "optimizer": {
     "name": "Adam",
     "params": {
-      "lr": 5e-3,
+      "lr": 2e-3,
       "weight_decay": 0
     }
   },
   "pretrained": true,
-  "epochs": 500,
-  "batch_size": 16,
+  "epochs": 120,
+  "batch_size": 32,
   "learning_rate_scheduler": {
     "name": "ReduceLROnPlateau",
     "params": {
@@ -42,6 +42,7 @@
   "cache_transforms": true,
   "print_frequency_epoch": 1,
   "tensorboard_frequency": 1,
-  "tensorboard_frequency_im": -1
+  "tensorboard_frequency_im": -1,
+  "choose_best_epoch_by" : "val_mean_angular_error"
 
 }
