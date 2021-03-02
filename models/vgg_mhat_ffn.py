@@ -139,14 +139,14 @@ class VggMHATFfn(VGG):
         self.candidate_selection = class_obj(conf, **conf['candidate_selection']['params'])#给参数进kmeans.__init__(),实例化
         self._final_affine_transformation = final_affine_transformation
 
-
+        self.downsample_conv = nn.Conv2d(128, 64, 1)
 
         # then, we have N="n_pointwise_conv" number of 1x1 convs
         # 改变n_pointwise_conv，会让中间层全都是1x1卷积，并且channel（in&out）=64,最后一层输出为n_features指定的
         # BoTNet_num = 1
         BoTNet_layers = []
         for _ in range(n_pointwise_conv):
-            BoTNet_layers.append(MHAT_block(128, n_features))
+            BoTNet_layers.append(MHAT_block(64, n_features))
 
         self.pointwise_conv = nn.Sequential(*BoTNet_layers)
 
@@ -258,18 +258,21 @@ class VggMHATFfn(VGG):
             x = self.conv1(input2)
             x = self.relu1(x)
 
-            x1 = self.amp(x)
-            x2 = self.amp(x)
+            x1 = self.amp1(x)
+            x2 = self.amp2(x)
 
             x = torch.cat((x1,x2),1)
+
+            x = self.downsample_conv(x)
 
             # point-wise convs (1x1)
             x = self.pointwise_conv(x)
 
-            x = self.conv_out(x) #64x64x1
+            # x = self.conv_out(x) #64x64x1
+            x = self.fc(x)
 
             # global average pooling, from 64x64x128 to 1x1x128
-            x = F.adaptive_avg_pool2d(x, (1, 1))
+            # x = F.adaptive_avg_pool2d(x, (1, 1))
 
             # dropout (in paper=0.5)
             # x = self.dropout(x)#32,128,1,1
