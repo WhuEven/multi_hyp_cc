@@ -105,9 +105,9 @@ class VggMHATFfn(VGG):
         arch = conf['network']['subarch']
         # vgg11 or vgg11 with batch norm
         if arch == 'vgg11':
-            super(VggMHAT, self).__init__(make_layers(cfgs['A']), **kwargs)#调用VGG中的构造函数，使用继承重写（定义不执行）
+            super(VggMHATFfn, self).__init__(make_layers(cfgs['A']), **kwargs)#调用VGG中的构造函数，使用继承重写（定义不执行）
         elif arch == 'vgg11_bn':
-            super(VggMHAT, self).__init__(make_layers(cfgs['A'], batch_norm=True), **kwargs)
+            super(VggMHATFfn, self).__init__(make_layers(cfgs['A'], batch_norm=True), **kwargs)
         else:
             raise Exception('Wrong architecture')
 
