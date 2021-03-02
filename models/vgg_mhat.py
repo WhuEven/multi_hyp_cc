@@ -74,7 +74,7 @@ class MHAT_block(nn.Module):
         self.MHAT_block_layer = nn.Sequential(*BoTNet_layers)
 
     def forward(self, x):
-        return F.rulu(x + self.MHAT_block_layer(x))
+        return F.relu(x + self.MHAT_block_layer(x))
 
 
 
