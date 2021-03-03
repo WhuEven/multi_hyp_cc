@@ -1,10 +1,10 @@
 {
-  "name": "2021-3-2-MHATb2_noBN_warpped",
+  "name": "2021-3-3-MHATb3_dropout",
   "network": {
     "arch": "VggMHATFfn",
     "subarch": "vgg11",
     "params": {"dropout": 0.5, "fix_base_network": true,
-              "final_affine_transformation": true, "n_pointwise_conv" : 1, "n_features" : 64}
+              "final_affine_transformation": true, "n_pointwise_conv" : 3, "n_features" : 32}
   },
   "candidate_selection": {
     "name": "KMeans",
@@ -16,14 +16,15 @@
     "params": {"compute_acos": true}
   },
   "optimizer": {
-    "name": "Adam",
+    "name": "SGD",
     "params": {
       "lr": 3e-3,
-      "weight_decay": 0
+      "weight_decay": 0,
+      "momentum" : 0.9
     }
   },
   "pretrained": true,
-  "epochs": 120,
+  "epochs": 500,
   "batch_size": 32,
   "learning_rate_scheduler": {
     "name": "ReduceLROnPlateau",
@@ -42,6 +43,7 @@
   "cache_transforms": true,
   "print_frequency_epoch": 1,
   "tensorboard_frequency": 1,
-  "tensorboard_frequency_im": -1
+  "tensorboard_frequency_im": -1,
+  "choose_best_epoch_by" : "val_mean_angular_error"
 
 }

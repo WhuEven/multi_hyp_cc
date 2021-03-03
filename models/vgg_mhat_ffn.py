@@ -164,7 +164,7 @@ class VggMHATFfn(VGG):
                     param.requires_grad = False
 
         # probability of dropout
-        # self.dropout = nn.Dropout()
+        self.dropout = nn.Dropout(dropout)
 
         # final FC layers: from N to 1 (probability for illuminant)
         # final_n = 1
@@ -269,18 +269,17 @@ class VggMHATFfn(VGG):
             x = self.pointwise_conv(x)
 
             # x = self.conv_out(x) #64x64x1
-            x = self.fc(x)
 
             # global average pooling, from 64x64x128 to 1x1x128
-            # x = F.adaptive_avg_pool2d(x, (1, 1))
+            x = F.adaptive_avg_pool2d(x, (1, 1))
 
             # dropout (in paper=0.5)
-            # x = self.dropout(x)#32,128,1,1
+            x = self.dropout(x)#32,128,1,1
 
             # reshape 1x1x128 -> 128
             x = x.view(x.size(0), -1)#32,128
             # FC layers: 128 -> 1
-            # x = self.fc(x)
+            x = self.fc(x)
 
             # save log-likelihood for this illuminant
             logits[:, i] = x[:, 0]#一组batch的图的第一个光源的可能性，第一列
