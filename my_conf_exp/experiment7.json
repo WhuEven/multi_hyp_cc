@@ -1,10 +1,10 @@
 {
-  "name": "2021-3-3-MHAT1_dropout",
+  "name": "origin_attention",
   "network": {
-    "arch": "VggMHATFfn",
+    "arch": "VggClassificationAttention",
     "subarch": "vgg11",
     "params": {"dropout": 0.5, "fix_base_network": true,
-              "final_affine_transformation": true, "n_pointwise_conv" : 1, "n_features" : 32}
+              "final_affine_transformation": true}
   },
   "candidate_selection": {
     "name": "KMeans",
@@ -16,21 +16,20 @@
     "params": {"compute_acos": true}
   },
   "optimizer": {
-    "name": "SGD",
+    "name": "Adam",
     "params": {
-      "lr": 1e-2,
-      "weight_decay": 0,
-      "momentum" : 0.9
+      "lr": 5e-3,
+      "weight_decay": 0
     }
   },
   "pretrained": true,
-  "epochs": 300,
+  "epochs": 120,
   "batch_size": 32,
   "learning_rate_scheduler": {
     "name": "ReduceLROnPlateau",
     "params": {
-      "factor": 0.1,
-      "patience": 5,
+      "factor": 0.5,
+      "patience": 10,
       "verbose": true
     }
   },
@@ -44,6 +43,5 @@
   "print_frequency_epoch": 1,
   "tensorboard_frequency": 1,
   "tensorboard_frequency_im": -1,
-  "choose_best_epoch_by" : "val_mean_angular_error"
 
 }
