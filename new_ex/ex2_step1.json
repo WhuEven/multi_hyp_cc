@@ -1,16 +1,17 @@
 {
-  "name": "origin_attention",
+  "name": "table1_pre_cube_nus_pretrain",
   "network": {
     "arch": "VggClassificationAttention",
     "subarch": "vgg11",
     "params": {"dropout": 0.5, "fix_base_network": true,
-              "final_affine_transformation": true}
+              "final_affine_transformation": false}
   },
   "candidate_selection": {
     "name": "KMeans",
     "params": {"k": 120}
   },
-  "cameras": ["ShiGehler"],
+  "cameras": ["CanonEos1DMark3", "CanonEos600D", "FujifilmXM1", "NikonD5200", "OlympusEPL6", "PanasonicGX1", "SamsungNX2000", "SonyA57", "CanonEOS550D"],
+  "sampler": "CameraSampler",
   "loss": {
     "name": "AngularError",
     "params": {"compute_acos": true}
@@ -23,13 +24,13 @@
     }
   },
   "pretrained": true,
-  "epochs": 120,
+  "epochs": 25,
   "batch_size": 32,
   "learning_rate_scheduler": {
     "name": "ReduceLROnPlateau",
     "params": {
       "factor": 0.5,
-      "patience": 10,
+      "patience": 5,
       "verbose": true
     }
   },
