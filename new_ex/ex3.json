@@ -1,5 +1,5 @@
 {
-  "name": "table1_pre_finetune",
+  "name": "table2-our",
   "network": {
     "arch": "VggClassificationAttention",
     "subarch": "vgg11",
@@ -10,11 +10,13 @@
     "name": "KMeans",
     "params": {"k": 120}
   },
-  "cameras": ["ShiGehler"],
-  "pretrained_skip": ["clusters_CanonEOS550D", "clusters_CanonEos1DMark3", "clusters_CanonEos600D", "clusters_FujifilmXM1", "clusters_NikonD5200", "clusters_OlympusEPL6", "clusters_PanasonicGX1", "clusters_SamsungNX2000", "clusters_SonyA57", "fc.4.weight", "fc.4.bias"],
+  "cameras": ["CanonEos1DMark3", "CanonEos600D", "FujifilmXM1", "NikonD5200", "OlympusEPL6", "PanasonicGX1", "SamsungNX2000", "SonyA57"],
+  "sampler": "CameraSampler",
   "loss": {
     "name": "AngularError",
-    "params": {"compute_acos": true}
+    "params": {
+      "compute_acos": true
+    }
   },
   "optimizer": {
     "name": "Adam",
