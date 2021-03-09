@@ -5,7 +5,7 @@
 # Declare an array of string with type
 declare -a CAMERAS=("canon_eos_1D_mark3" "canon_eos_600D" "fuji" "nikonD5200" "panasonic" "olympus" "sony" "samsung" )
 
-TRAINED_MODEL_PATH="./new_ex_output/ex3/"
+TRAINED_MODEL_PATH="./new_ex_output/ex3"
 GPU_ID="0"
 
 # Iterate the string array using for loop

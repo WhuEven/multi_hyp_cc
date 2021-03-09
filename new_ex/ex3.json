@@ -1,5 +1,5 @@
 {
-  "name": "table2",
+  "name": "table2-our",
   "network": {
     "arch": "VggClassificationAttention",
     "subarch": "vgg11",
@@ -26,13 +26,13 @@
     }
   },
   "pretrained": true,
-  "epochs": 120,
+  "epochs": 200,
   "batch_size": 32,
   "learning_rate_scheduler": {
     "name": "ReduceLROnPlateau",
     "params": {
       "factor": 0.5,
-      "patience": 5,
+      "patience": 10,
       "verbose": true
     }
   },
@@ -45,6 +45,7 @@
   "cache_transforms": true,
   "print_frequency_epoch": 1,
   "tensorboard_frequency": 1,
-  "tensorboard_frequency_im": -1
+  "tensorboard_frequency_im": -1,
+  "choose_best_epoch_by" : "val_mean_angular_error"
 
 }
