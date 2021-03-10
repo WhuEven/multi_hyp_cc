@@ -1,0 +1,52 @@
+{
+  "name": "table3-MDT-finetune",
+  "network": {
+    "arch": "VggClassificationAttention",
+    "subarch": "vgg11",
+    "params": {"dropout": 0.5, "fix_base_network": true,
+              "final_affine_transformation": true}
+  },
+  "candidate_selection": {
+    "name": "KMeans",
+    "params": {"k": 120}
+  },
+  "pretrained_skip": ["clusters_ShiGehler", "clusters_CanonEOS550D"],
+  "cameras": ["CanonEos1DMark3", "CanonEos600D", "FujifilmXM1", "NikonD5200", "OlympusEPL6", "PanasonicGX1", "SamsungNX2000", "SonyA57"],
+  "sampler": "CameraSampler",
+  "loss": {
+    "name": "AngularError",
+    "params": {
+      "compute_acos": true
+    }
+  },
+  "optimizer": {
+    "name": "Adam",
+    "params": {
+      "lr": 5e-5,
+      "weight_decay": 0
+    }
+  },
+  "pretrained": true,
+  "epochs": 200,
+  "batch_size": 32,
+  "learning_rate_scheduler": {
+    "name": "ReduceLROnPlateau",
+    "params": {
+      "factor": 0.5,
+      "patience": 10,
+      "verbose": true
+    }
+  },
+  "transforms": [
+    {"BlacklevelAndSaturation": {"saturation_scale": 0.95}},
+    {"Resize": {"size": [64, 64]}},
+    {"Normalize": null}
+  ],
+  "transforms_valtest": null,
+  "cache_transforms": true,
+  "print_frequency_epoch": 1,
+  "tensorboard_frequency": 1,
+  "tensorboard_frequency_im": -1,
+  "choose_best_epoch_by" : "val_mean_angular_error"
+
+}
