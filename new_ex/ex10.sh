@@ -2,7 +2,7 @@
 
 #Cube challenge上的结果，用Gehler-Shi和NUS预训练
 
-TRAINED_MODEL_PATH="./new_ex/ex10"
+TRAINED_MODEL_PATH="./new_ex_output/ex10"
 GPU_ID="0"
 
 CUDA_VISIBLE_DEVICES="$GPU_ID" python3 hold_out.py new_ex/ex10_step1.json Multidataset nus_shigehler data/multidataset/nus_shigehler/all.txt -gpu 0 --outputfolder $TRAINED_MODEL_PATH
