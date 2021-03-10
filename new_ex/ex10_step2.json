@@ -45,7 +45,6 @@
   "cache_transforms": true,
   "print_frequency_epoch": 1,
   "tensorboard_frequency": 1,
-  "tensorboard_frequency_im": -1,
-  "choose_best_epoch_by" : "val_mean_angular_error"
+  "tensorboard_frequency_im": -1
 
 }
