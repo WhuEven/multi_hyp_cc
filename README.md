@@ -1,5 +1,9 @@
 # **A Multi-Hypothesis Approach to Color Constancy**
 
+**注意，此版本已进行了多次修改，用于毕设研究，欢迎各位大佬私信我交流。此版本进行了多组结构性实验，最终版本是在输入层部分添加了空间注意力，在NUS数据集上全面超越原文。**
+
+**欢迎业内做颜色视觉、颜色恒常性的大佬进行交流，欢迎老板挖人**
+
 **Daniel Hernandez-Juarez, Sarah Parisot, Benjamin Busam, Ales Leonardis, Gregory Slabaugh and Steven McDonagh**
 
 **CVPR, 2020**
